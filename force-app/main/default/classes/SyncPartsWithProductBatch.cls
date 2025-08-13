@@ -73,7 +73,12 @@ public class SyncPartsWithProductBatch implements Database.Batchable<sObject>,Sc
     
     // to schedule batch class
     public void execute(SchedulableContext sc){
-        SyncPartsWithProductBatch syBatch = new SyncPartsWithProductBatch();
-        Database.executeBatch(syBatch,200);
+        String profileName = [SELECT Name FROM Profile WHERE Id = :UserInfo.getProfileId()].Name;
+        PermissionSetAssignment permissionSet = [SELECT Id FROM PermissionSetAssignment WHERE AssigneeId = :UserInfo.getUserId() AND PermissionSet.Name = 'CQ_Product_Admin' Limit 1];
+        
+        if(profileName == 'System Administrator' || permissionSet != Null){
+            SyncPartsWithProductBatch syBatch = new SyncPartsWithProductBatch();
+            Database.executeBatch(syBatch,200);
+        }
     }
 }
